@@ -2,3 +2,5 @@
 *.tfstate
 *.tfstate.*
 terraform.lock.hcl
+config.bat
+node_modules
