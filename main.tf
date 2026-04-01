@@ -17,7 +17,7 @@ resource "azurerm_resource_group" "rg" {
   location = var.location
 }
 
-
+#testcommit
 resource "azurerm_virtual_network" "vnet" {
   name                = "${var.resource_group_name}-vnet"
   location            = azurerm_resource_group.rg.location
