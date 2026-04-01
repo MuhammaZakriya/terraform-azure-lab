@@ -1,4 +1,15 @@
+﻿# Terraform files
 .terraform/
 *.tfstate
 *.tfstate.*
-terraform.lock.hcl
+*.tfvars
+*.tfvars.json
+override.tf
+.terraformrc
+terraform.rc
+
+# Local files
+.idea/
+.vscode/
+*.log
+.DS_Store

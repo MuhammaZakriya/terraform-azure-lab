@@ -11,13 +11,13 @@ provider "azurerm" {
   features {}
 }
 
-# ==================== RESOURCE GROUP =======================
+
 resource "azurerm_resource_group" "rg" {
   name     = var.resource_group_name
   location = var.location
 }
 
-# ==================== VIRTUAL NETWORK ====================
+
 resource "azurerm_virtual_network" "vnet" {
   name                = "${var.resource_group_name}-vnet"
   location            = azurerm_resource_group.rg.location
@@ -25,7 +25,7 @@ resource "azurerm_virtual_network" "vnet" {
   address_space       = ["10.0.0.0/16"]
 }
 
-# ==================== SUBNET ====================
+
 resource "azurerm_subnet" "subnet" {
   name                 = "${var.resource_group_name}-subnet"
   resource_group_name  = azurerm_resource_group.rg.name
@@ -33,16 +33,8 @@ resource "azurerm_subnet" "subnet" {
   address_prefixes     = ["10.0.1.0/24"]
 }
 
-# ==================== PUBLIC IP ====================
-resource "azurerm_public_ip" "public_ip" {
-  name                = "${var.resource_group_name}-public-ip"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
-  allocation_method = "Static"
-  sku               = "Standard"
-}
 
-# ==================== NETWORK INTERFACE ====================
+
 resource "azurerm_network_interface" "nic" {
   name                = "${var.resource_group_name}-nic"
   location            = azurerm_resource_group.rg.location
@@ -56,7 +48,7 @@ resource "azurerm_network_interface" "nic" {
   }
 }
 
-# ==================== VIRTUAL MACHINE ====================
+
 resource "azurerm_virtual_machine" "vm" {
   name                  = "${var.resource_group_name}-vm"
   location              = azurerm_resource_group.rg.location
@@ -88,8 +80,13 @@ resource "azurerm_virtual_machine" "vm" {
     disable_password_authentication = false
   }
 }
-
-# ==================== STORAGE ACCOUNT ====================
+resource "azurerm_public_ip" "public_ip" {
+  name                = "${var.resource_group_name}-public-ip"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  allocation_method   = "Static"
+  sku                 = "Standard"
+}
 resource "azurerm_storage_account" "storage" {
   name                     = replace("${var.resource_group_name}storage", "-", "")
   resource_group_name      = azurerm_resource_group.rg.name
@@ -97,49 +94,10 @@ resource "azurerm_storage_account" "storage" {
   account_tier             = "Standard"
   account_replication_type = "LRS"
 }
-
-# ==================== STORAGE CONTAINER ====================
-resource "azurerm_storage_container" "container" {
-  name                  = "mycontainer"
-  storage_account_name  = azurerm_storage_account.storage.name
-  container_access_type = "private"
-}
-
-# ==================== IAM ROLE ASSIGNMENT ====================
 data "azurerm_subscription" "current" {}
 
 resource "azurerm_role_assignment" "contributor" {
   scope                = azurerm_resource_group.rg.id
   role_definition_name = "Contributor"
   principal_id         = "0538bbf6-cc90-4d7e-800d-353c47b49725"
-}
-# ==================== LOGGING ====================
-resource "azurerm_log_analytics_workspace" "law" {
-  name                = "${var.resource_group_name}-law"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
-  sku                 = "PerGB2018"
-  retention_in_days   = 30
-}
-
-resource "azurerm_monitor_diagnostic_setting" "vm_logs" {
-  name                       = "${var.resource_group_name}-vm-logs"
-  target_resource_id         = azurerm_virtual_machine.vm.id
-  log_analytics_workspace_id = azurerm_log_analytics_workspace.law.id
-
-  metric {
-    category = "AllMetrics"
-    enabled  = true
-  }
-}
-
-resource "azurerm_monitor_diagnostic_setting" "storage_logs" {
-  name                       = "${var.resource_group_name}-storage-logs"
-  target_resource_id         = azurerm_storage_account.storage.id
-  log_analytics_workspace_id = azurerm_log_analytics_workspace.law.id
-
-  metric {
-    category = "Transaction"
-    enabled  = true
-  }
 }
