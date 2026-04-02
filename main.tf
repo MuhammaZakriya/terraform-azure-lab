@@ -152,6 +152,18 @@ resource "azurerm_subnet_route_table_association" "public_rt_assoc" {
   subnet_id      = azurerm_subnet.subnet.id
   route_table_id = azurerm_route_table.public_rt.id
 }
+resource "azurerm_network_interface" "private_nic" {
+  name                = "${var.resource_group_name}-private-nic"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+
+  ip_configuration {
+    name                          = "internal"
+    subnet_id                     = azurerm_subnet.subnet1.id
+    private_ip_address_allocation = "Dynamic"
+    # NO public IP
+  }
+}
 
 # Private VM
 resource "azurerm_linux_virtual_machine" "private_vm" {
