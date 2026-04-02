@@ -132,3 +132,43 @@ resource "azurerm_subnet_nat_gateway_association" "private_nat" {
   subnet_id      = azurerm_subnet.subnet1.id
   nat_gateway_id = azurerm_nat_gateway.nat.id
 }
+
+
+# Route table for Public Subnet (direct internet)
+resource "azurerm_route_table" "public_rt" {
+  name                = "${var.resource_group_name}-public-rt"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+
+  route {
+    name                   = "to-internet"
+    address_prefix         = "0.0.0.0/0"
+    next_hop_type          = "Internet"
+  }
+}
+
+
+resource "azurerm_subnet_route_table_association" "public_rt_assoc" {
+  subnet_id      = azurerm_subnet.subnet.id
+  route_table_id = azurerm_route_table.public_rt.id
+}
+
+
+resource "azurerm_route_table" "private_rt" {
+  name                = "${var.resource_group_name}-private-rt"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+
+  route {
+    name                   = "to-internet-via-nat"
+    address_prefix         = "0.0.0.0/0"
+    next_hop_type          = "VirtualAppliance"
+    next_hop_in_ip_address = azurerm_nat_gateway.nat.id
+  }
+}
+
+
+resource "azurerm_subnet_route_table_association" "private_rt_assoc" {
+  subnet_id      = azurerm_subnet.subnet1.id
+  route_table_id = azurerm_route_table.private_rt.id
+}
