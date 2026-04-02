@@ -30,6 +30,10 @@ jobs:
 
       - name: Terraform Init
         run: terraform init
+        env:
+          ARM_ACCESS_KEY: ${{ secrets.ARM_ACCESS_KEY }}
 
       - name: Terraform Apply
         run: terraform apply -auto-approve
+        env:
+          ARM_ACCESS_KEY: ${{ secrets.ARM_ACCESS_KEY }}
