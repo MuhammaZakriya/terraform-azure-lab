@@ -7,7 +7,7 @@ output "virtual_network_name" {
 }
 
 output "subnet_name" {
-  value = azurerm_subnet.subnet1.name
+  value = azurerm_subnet.subnet.name
 }
 
 output "public_ip_address" {
