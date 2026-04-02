@@ -153,22 +153,3 @@ resource "azurerm_subnet_route_table_association" "public_rt_assoc" {
   route_table_id = azurerm_route_table.public_rt.id
 }
 
-
-resource "azurerm_route_table" "private_rt" {
-  name                = "${var.resource_group_name}-private-rt"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
-
-  route {
-    name                   = "to-internet-via-nat"
-    address_prefix         = "0.0.0.0/0"
-    next_hop_type          = "VirtualAppliance"
-    next_hop_in_ip_address = azurerm_nat_gateway.nat.id
-  }
-}
-
-
-resource "azurerm_subnet_route_table_association" "private_rt_assoc" {
-  subnet_id      = azurerm_subnet.subnet1.id
-  route_table_id = azurerm_route_table.private_rt.id
-}
