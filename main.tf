@@ -12,7 +12,6 @@ backend "azurerm" {
     container_name       = "terraform-state"
     key                  = "complete-lab-rg.tfstate"
   }
-  
 }
 
 provider "azurerm" {
@@ -36,21 +35,27 @@ resource "azurerm_virtual_network" "vnet" {
 }
 
 
-resource "azurerm_subnet" "subnet1" {
-  name                 = "${var.resource_group_name}-subnet1"
+resource "azurerm_subnet" "subnet" {
+  name                 = "${var.resource_group_name}-subnet"
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.vnet.name
   address_prefixes     = ["10.0.1.0/24"]
 }
 
-resource "azurerm_subnet" "subnet2" {
-  name                 = "${var.resource_group_name}-subnet2"
-  resource_group_name  = azurerm_resource_group.rg.name
-  virtual_network_name = azurerm_virtual_network.vnet.name
-  address_prefixes     = ["10.0.2.0/24"]
+
+
+resource "azurerm_network_interface" "nic" {
+  name                = "${var.resource_group_name}-nic"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+
+  ip_configuration {
+    name                          = "internal"
+    subnet_id                     = azurerm_subnet.subnet.id
+    private_ip_address_allocation = "Dynamic"
+    public_ip_address_id          = azurerm_public_ip.public_ip.id
+  }
 }
-
-
 
 
 resource "azurerm_virtual_machine" "vm" {
@@ -98,28 +103,4 @@ resource "azurerm_role_assignment" "contributor" {
   scope                = azurerm_resource_group.rg.id
   role_definition_name = "Contributor"
   principal_id         = "0538bbf6-cc90-4d7e-800d-353c47b49725"
-}
-# Network Security Group
-resource "azurerm_network_security_group" "nsg" {
-  name                = "${var.resource_group_name}-nsg"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
-
-  security_rule {
-    name                       = "SSH"
-    priority                   = 100
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-    source_port_range          = "*"
-    destination_port_range     = "22"
-    source_address_prefix      = "*"
-    destination_address_prefix = "*"
-  }
-}
-
-# Associate NSG with Subnet
-resource "azurerm_subnet_network_security_group_association" "nsg_assoc" {
-  subnet_id                 = azurerm_subnet.subnet1.id
-  network_security_group_id = azurerm_network_security_group.nsg.id
 }
