@@ -18,9 +18,7 @@ output "vm_name" {
   value = azurerm_virtual_machine.vm.name
 }
 
-output "storage_account_name" {
-  value = azurerm_storage_account.storage.name
-}
+
 
 output "role_assignment_scope" {
   value = azurerm_role_assignment.contributor.scope
