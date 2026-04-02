@@ -109,3 +109,22 @@ resource "azurerm_role_assignment" "contributor" {
   role_definition_name = "Contributor"
   principal_id         = "0538bbf6-cc90-4d7e-800d-353c47b49725"
 }
+resource "azurerm_public_ip" "nat_ip" {
+  name                = "${var.resource_group_name}-nat-ip"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  allocation_method   = "Static"
+  sku                 = "Standard"
+}
+
+resource "azurerm_nat_gateway" "nat" {
+  name                = "${var.resource_group_name}-nat"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  sku_name            = "Standard"
+}
+
+resource "azurerm_subnet_nat_gateway_association" "private_nat" {
+  subnet_id      = azurerm_subnet.subnet1.id
+  nat_gateway_id = azurerm_nat_gateway.nat.id
+}
