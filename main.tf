@@ -5,11 +5,21 @@ terraform {
       version = "~> 3.0"
     }
   }
+
+backend "azurerm" {
+    resource_group_name  = "terraform-state-rg"
+    storage_account_name = "tfstatezakriya2026"
+    container_name       = "terraform-state"
+    key                  = "complete-lab-rg.tfstate"
+  }
+  
 }
 
 provider "azurerm" {
   features {}
 }
+
+
 
 
 resource "azurerm_resource_group" "rg" {
