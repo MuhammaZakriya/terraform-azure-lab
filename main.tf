@@ -152,23 +152,40 @@ resource "azurerm_subnet_route_table_association" "public_rt_assoc" {
   subnet_id      = azurerm_subnet.subnet.id
   route_table_id = azurerm_route_table.public_rt.id
 }
-
-
-resource "azurerm_route_table" "private_rt" {
-  name                = "${var.resource_group_name}-private-rt"
+resource "azurerm_network_interface" "private_nic" {
+  name                = "${var.resource_group_name}-private-nic"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
 
-  route {
-    name                   = "to-internet-via-nat"
-    address_prefix         = "0.0.0.0/0"
-    next_hop_type          = "VirtualAppliance"
-    next_hop_in_ip_address = azurerm_nat_gateway.nat.id
+  ip_configuration {
+    name                          = "internal"
+    subnet_id                     = azurerm_subnet.subnet1.id
+    private_ip_address_allocation = "Dynamic"
+    # NO public IP
   }
 }
 
+# Private VM
+resource "azurerm_linux_virtual_machine" "private_vm" {
+  name                = "${var.resource_group_name}-private-vm"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  size                = "Standard_B2ps_v2"
+  admin_username      = var.admin_username
+  admin_password      = var.admin_password
+  disable_password_authentication = false
 
-resource "azurerm_subnet_route_table_association" "private_rt_assoc" {
-  subnet_id      = azurerm_subnet.subnet1.id
-  route_table_id = azurerm_route_table.private_rt.id
+  network_interface_ids = [azurerm_network_interface.private_nic.id]
+
+  os_disk {
+    caching              = "ReadWrite"
+    storage_account_type = "Standard_LRS"
+  }
+
+  source_image_reference {
+    publisher = "Canonical"
+    offer     = "0001-com-ubuntu-server-jammy"
+    sku       = "22_04-lts-arm64"
+    version   = "latest"
+  }
 }
