@@ -87,13 +87,7 @@ resource "azurerm_public_ip" "public_ip" {
   allocation_method   = "Static"
   sku                 = "Standard"
 }
-resource "azurerm_storage_account" "storage" {
-  name                     = replace("${var.resource_group_name}storage", "-", "")
-  resource_group_name      = azurerm_resource_group.rg.name
-  location                 = azurerm_resource_group.rg.location
-  account_tier             = "Standard"
-  account_replication_type = "LRS"
-}
+
 data "azurerm_subscription" "current" {}
 
 resource "azurerm_role_assignment" "contributor" {
