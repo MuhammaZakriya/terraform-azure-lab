@@ -37,6 +37,7 @@ module "compute" {
   location            = azurerm_resource_group.rg.location
   public_nic_id       = module.networking.public_nic_id
   private_nic_id      = module.networking.private_nic_id
+  computer_name       = var.computer_name
   admin_username      = var.admin_username
   admin_password      = var.admin_password
 }
