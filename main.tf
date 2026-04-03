@@ -230,6 +230,18 @@ resource "azurerm_network_security_group" "nsg" {
   source_address_prefix      = "*"
   destination_address_prefix = "*"
   }
+
+  security_rule {
+    name                       = "BACKEND"
+    priority                   = 130
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "8000"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
 }
 
 # Associate with public subnet
