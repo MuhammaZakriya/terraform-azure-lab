@@ -10,6 +10,7 @@ terraform.rc
 
 # Local files
 .idea/
-.vscode/
 *.log
 .DS_Store
+config.bat
+node_modules
