@@ -23,7 +23,3 @@ variable "admin_password" {
   default     = "P@ssw0rd123456!"
   sensitive   = true
 }
-variable "role_principal_id" {
-  description = "Principal ID for role assignment"
-  default     = "0538bbf6-cc90-4d7e-800d-353c47b49725"
-}
